@@ -2,6 +2,7 @@
   import type { NodeViewProps } from '@tiptap/core';
   import cx from 'clsx';
   import { NodeViewWrapper } from '$lib';
+  import { onDestroy } from 'svelte';
 
   export let node: NodeViewProps['node'];
   export let updateAttributes: NodeViewProps['updateAttributes'];
@@ -10,6 +11,10 @@
   const handleClick = (): void => {
     updateAttributes({ count: node.attrs.count + 1 });
   };
+
+  onDestroy(() => {
+    console.log('onDestroy');
+  });
 </script>
 
 <NodeViewWrapper

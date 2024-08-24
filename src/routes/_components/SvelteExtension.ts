@@ -3,12 +3,23 @@ import { SvelteNodeViewRenderer } from '$lib';
 
 import CounterComponent from './Counter.svelte';
 import EditableComponent from './Editable.svelte';
+import { TextSelection } from '@tiptap/pm/state';
+
+declare module '@tiptap/core' {
+  interface Commands<ReturnType> {
+    media: {
+      addNode: () => ReturnType;
+    };
+  }
+}
 
 export const SvelteCounterExtension = Node.create({
   name: 'SvelteCounterComponent',
   group: 'block',
   atom: true,
+  selectable: true,
   draggable: true,
+  allowGapCursor: true,
   inline: false,
 
   addAttributes() {
@@ -29,6 +40,24 @@ export const SvelteCounterExtension = Node.create({
 
   addNodeView() {
     return SvelteNodeViewRenderer(CounterComponent);
+  },
+
+  addCommands() {
+    return {
+      addNode:
+        () =>
+          ({ editor, tr }) => {
+            const { to } = editor.state.selection;
+
+            const node = editor.schema.nodes['SvelteCounterComponent'].create();
+
+            tr.insert(to, node);
+
+            tr.setSelection(TextSelection.create(tr.doc, to + node.nodeSize + 1));
+
+            return true;
+          }
+    };
   },
 });
 
